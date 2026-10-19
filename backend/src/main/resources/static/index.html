@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyage | Explore Destinations</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header>
+    <h1>✈️ Voyage</h1>
+    <p>Your journey begins here.</p>
+</header>
+
+<main>
+    <section class="search-section">
+        <h2>Where would you like to go?</h2>
+
+        <form id="searchForm">
+            <input
+                type="text"
+                id="destinationInput"
+                placeholder="Search Munnar, Goa, Manali..."
+                required
+            >
+            <button type="submit">Explore</button>
+        </form>
+
+        <div id="destinationResult"></div>
+        <section id="attractionsSection">
+            <h2>Places to Explore</h2>
+            <div id="attractionsContainer"></div>
+        </section>
+        
+        <h2>Popular Destinations</h2>
+
+        <div class="popular-destinations">
+        <button type="button" class="destination-card" data-destination="Munnar">
+            Munnar
+        </button>
+
+        <button type="button" class="destination-card" data-destination="Goa">
+            Goa
+        </button>
+
+        <button type="button" class="destination-card" data-destination="Manali">
+            Manali
+        </button>
+
+        <button type="button" class="destination-card" data-destination="Jaipur">
+            Jaipur
+        </button>
+
+        <button type="button" class="destination-card" data-destination="Leh">
+            Leh
+        </button>
+
+        <button type="button" class="destination-card" data-destination="Shillong">
+            Shillong
+        </button>
+    </div>
+
+    </section>
+</main>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
