@@ -69,3 +69,43 @@ button {
     border: 1px solid #ddd;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
+.attraction-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.attraction-checkbox {
+    width: 18px;
+    height: 18px;
+    margin-top: 5px;
+    accent-color: #16856b;
+}
+
+.attraction-option h3 {
+    margin-top: 0;
+}
+
+#planTripBtn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    cursor: pointer;
+}
+.trip-preferences {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 20px;
+    background: #f8faf9;
+    border-radius: 12px;
+}
+
+.trip-preferences input,
+.trip-preferences select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}

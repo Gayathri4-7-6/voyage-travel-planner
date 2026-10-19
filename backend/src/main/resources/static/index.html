@@ -30,6 +30,49 @@
         <section id="attractionsSection">
             <h2>Places to Explore</h2>
             <div id="attractionsContainer"></div>
+            <div class="trip-preferences">
+                <h2>Customize Your Trip</h2>
+
+                <label for="tripDays">Number of days</label>
+                <input type="number" id="tripDays" min="1" max="14" value="3">
+
+                <label for="travelers">Number of travelers</label>
+                <input type="number" id="travelers" min="1" value="2">
+
+                <label for="startDate">Start date</label>
+                <input type="date" id="startDate">
+
+                <label for="endDate">End date</label>
+                <input type="date" id="endDate">
+                <label for="hotelCategory">Accommodation type</label>
+                <select id="hotelCategory">
+                    <option value="budget">Budget</option>
+                    <option value="midrange">Mid-range</option>
+                    <option value="luxury">Luxury</option>
+                </select>
+
+                <label for="foodPreference">Food Preference</label>
+                <select id="foodPreference">
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="nonvegetarian">Non-vegetarian</option>
+                    <option value="jain">Jain</option>
+                    <option value="both">Both</option>
+                </select>
+
+                <label for="totalBudget">Total trip budget (₹)</label>
+                <input
+                    type="number"
+                    id="totalBudget"
+                    min="1"
+                    placeholder="e.g. 15000"
+                    required
+                >
+            </div>
+            <button type="button" id="planTripBtn">
+                Plan My Trip
+            </button>
+
+            <p id="selectionResult"></p>
         </section>
         
         <h2>Popular Destinations</h2>

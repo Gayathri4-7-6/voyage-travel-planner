@@ -84,7 +84,7 @@ public class AttractionService {
                             .path("geosearch");
 
                         String keywords =
-                        "park|zoo|fort|palace|museum|temple|church|mosque|"
+                        "chapora|park|zoo|fort|palace|museum|temple|church|mosque|"
                         + "waterfall|falls|lake|dam|garden|beach|"
                         + "monument|viewpoint|sanctuary|reserve|"
                         + "tso|monastery|stupa|gompa|"
@@ -135,7 +135,7 @@ public class AttractionService {
                                 null
                             ));
 
-                            if (attractions.size() == 7) {
+                            if (attractions.size() == 15) {
                                 break;
                             }
                         }
