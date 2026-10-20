@@ -2,7 +2,7 @@
 const searchForm = document.getElementById("searchForm");
 const destinationInput = document.getElementById("destinationInput");
 const destinationResult = document.getElementById("destinationResult");
-
+let maxNightlyBudget = null;
 // Search for destinations and attractions
 searchForm.addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -118,6 +118,7 @@ document.querySelectorAll(".destination-card").forEach(card => {
 const planTripBtn = document.getElementById("planTripBtn");
 
 planTripBtn.addEventListener("click", async () => {
+    maxNightlyBudget=null;
     const result = document.getElementById("selectionResult");
     const itinerarySection = document.getElementById("itinerarySection");
     const itineraryResult = document.getElementById("itineraryResult");
@@ -186,9 +187,7 @@ planTripBtn.addEventListener("click", async () => {
                 "Could not save trip: " + tripResponse.status
             );
         }
-
         const savedTrip = await tripResponse.json();
-
         // Step 2: Generate the itinerary
         const itineraryResponse = await fetch(
             `/api/trips/${savedTrip.id}/itinerary/generate`,
@@ -228,7 +227,12 @@ planTripBtn.addEventListener("click", async () => {
         }
 
         const budgetBreakdown = await budgetResponse.json();
+        const nights = days;
+        maxNightlyBudget = Math.floor(
+            Number(budgetBreakdown.hotelBudget) / nights
+        );
 
+        console.log("Maximum nightly rate:", maxNightlyBudget);
         // Display the overall budget breakdown
         document.getElementById("totalBudgetDisplay").textContent =
             Number(budgetBreakdown.totalBudget).toLocaleString("en-IN");
@@ -329,45 +333,100 @@ planTripBtn.addEventListener("click", async () => {
     }
 });
 
-// Open hotel search on Booking.com
+
 document.getElementById("findHotelsBtn").addEventListener("click", () => {
     const destination = destinationInput.value.trim();
-    console.log("Destination sent to Booking.com:", destination);
+    const checkin = document.getElementById("startDate").value;
+    const checkout = document.getElementById("endDate").value;
+    const totalBudget = Number(document.getElementById("totalBudget").value);
+
+    const attractionsCount = document.querySelectorAll(
+        ".attraction-checkbox:checked"
+    ).length;
+
+    if (!destination || !checkin || !checkout || checkout <= checkin ||
+        !Number.isFinite(totalBudget) || totalBudget <= 0) {
+        alert("Please enter your destination, dates and budget.");
+        return;
+    }
+
+    const days = Math.round(
+        (new Date(checkout + "T00:00:00") -
+         new Date(checkin + "T00:00:00")) / 86400000
+    ) + 1;
+
+    
+document.getElementById("findHotelsBtn").addEventListener("click", () => {
+    const destination = destinationInput.value.trim();
     const checkin = document.getElementById("startDate").value;
     const checkout = document.getElementById("endDate").value;
 
-    if (!destination || !checkin || !checkout || checkout <= checkin) {
+    if (!destination || !checkin || !checkout || checkout < checkin) {
         alert("Please enter a destination and valid dates.");
         return;
     }
 
-    const hotelBudget = Number(
-        document.getElementById("hotelBudgetDisplay").textContent
-            .replace(/,/g, "")
-    );
+    if (maxNightlyBudget === null) {
+        alert("Please click Plan My Trip first.");
+        return;
+    }
+
+    if (maxNightlyBudget <= 0) {
+        alert("No remaining budget for hotels.");
+        return;
+    }
+
+    // Checkout is the day after the last sightseeing day
+    const checkoutDate = new Date(checkout + "T00:00:00");
+    checkoutDate.setDate(checkoutDate.getDate() + 1);
+
+    const bookingCheckout = [
+        checkoutDate.getFullYear(),
+        String(checkoutDate.getMonth() + 1).padStart(2, "0"),
+        String(checkoutDate.getDate()).padStart(2, "0")
+    ].join("-");
 
     const params = new URLSearchParams({
         ss: destination,
         checkin: checkin,
-        checkout: checkout,
-        group_adults: 1,
-        no_rooms: 1,
-        group_children: 0
+        checkout: bookingCheckout,
+        group_adults: "1",
+        no_rooms: "1",
+        group_children: "0"
     });
 
-    // Booking.com search results do not necessarily enforce this budget.
-    if (Number.isFinite(hotelBudget) && hotelBudget > 0) {
-        alert(
-            `Your suggested total hotel budget is ₹${hotelBudget.toLocaleString("en-IN")}. ` +
-            "On Booking.com, check the total price for your travel dates to stay within this budget."
-        );
-    } else {
-        alert("Plan your trip first to calculate your remaining hotel budget.");
-    }
+    params.set(
+        "nflt",
+        `price=INR-min-${maxNightlyBudget}-1`
+    );
 
     window.open(
-        "https://www.booking.com/searchresults.html?" + params.toString(),
+        "https://www.booking.com/searchresults.en-gb.html?" + params.toString(),
         "_blank",
         "noopener,noreferrer"
     );
 });
+
+
+    // Booking.com price filter
+    if (maxNightlyBudget === null) {
+        alert("Please click Plan My Trip first to calculate your hotel budget.");
+        return;
+    }
+
+    if (maxNightlyBudget <= 0) {
+        alert("No remaining budget for hotels.");
+        return;
+    }
+    params.set(
+        "nflt",
+        `price=INR-min-${maxNightlyBudget}-1`
+    );
+
+    window.open(
+        "https://www.booking.com/searchresults.en-gb.html?" + params.toString(),
+        "_blank",
+        "noopener,noreferrer"
+    );
+});
+

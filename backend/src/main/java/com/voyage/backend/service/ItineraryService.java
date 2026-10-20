@@ -2,6 +2,7 @@
 package com.voyage.backend.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,10 +60,14 @@ public class ItineraryService {
 
         List<ItineraryItem> items = new ArrayList<>();
 
+        long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
         LocalDate date = startDate;
         int minutes = 9 * 60;
 
-        for (SelectedAttraction attraction : attractions) {
+        for (int i = 0; i < attractions.size(); i++) {
+
+            SelectedAttraction attraction = attractions.get(i);
 
             if (attraction == null || attraction.name() == null
                     || attraction.name().isBlank()) {
@@ -70,25 +75,31 @@ public class ItineraryService {
                         "Invalid attraction.");
             }
 
+            // Distribute attractions across trip days
+            int dayIndex = (int) ((long) i * totalDays / attractions.size());
+            LocalDate targetDate = startDate.plusDays(dayIndex);
+
+            if (targetDate.isAfter(date)) {
+                date = targetDate;
+                minutes = 9 * 60;
+            }
+
             int duration = getDuration(attraction.category());
 
-            // Move to the next day if the visit cannot fit
-            // before lunch or before 6 PM
             while (true) {
 
                 // Lunch break: 1 PM to 2 PM
-                if (minutes >= 13 * 60 &&
-                        minutes < 14 * 60) {
+                if (minutes >= 13 * 60 && minutes < 14 * 60) {
                     minutes = 14 * 60;
                 }
 
-                // Avoid scheduling a visit across lunch
+                // Do not schedule visits across lunch
                 if (minutes < 13 * 60 &&
                         minutes + duration > 13 * 60) {
                     minutes = 14 * 60;
                 }
 
-                // Move to next day if there is no time
+                // Move to next day if visit won't fit
                 if (minutes + duration > 18 * 60) {
                     date = date.plusDays(1);
                     minutes = 9 * 60;
@@ -123,7 +134,7 @@ public class ItineraryService {
 
             items.add(item);
 
-            // 30-minute gap between attractions
+            // 30-minute travel buffer
             minutes = endMinutes + 30;
         }
 
