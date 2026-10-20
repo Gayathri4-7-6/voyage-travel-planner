@@ -12,9 +12,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-
+import com.voyage.backend.validation.ValidTripDates;
 @Entity
 @Table(name = "trips")
+@ValidTripDates
+
 public class Trip {
 
     @Id
