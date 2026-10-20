@@ -1,8 +1,9 @@
+
 const searchForm = document.getElementById("searchForm");
 const destinationInput = document.getElementById("destinationInput");
 const destinationResult = document.getElementById("destinationResult");
 
-
+// Search for destinations and attractions
 searchForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
@@ -14,6 +15,7 @@ searchForm.addEventListener("submit", async function(event) {
 
     destinationResult.textContent = "Searching...";
     document.getElementById("attractionsContainer").replaceChildren();
+
     try {
         const response = await fetch(
             "/api/destinations/search?query=" +
@@ -32,28 +34,39 @@ searchForm.addEventListener("submit", async function(event) {
         heading.textContent = data.name;
 
         const description = document.createElement("p");
-        description.textContent = "Great choice! "+data.description || "No description available.";
+        description.textContent =
+            "Great choice! " + (data.description || "No description available.");
 
         destinationResult.append(heading, description);
+
         const attractionResponse = await fetch(
             "/api/destinations/attractions?query=" +
             encodeURIComponent(query)
         );
+
         if (!attractionResponse.ok) {
             throw new Error("Attraction search failed");
         }
+
         const attractions = await attractionResponse.json();
+
         const attractionHeading = document.querySelector(
             "#attractionsSection h2"
         );
+
         attractionHeading.textContent =
             `Places to Explore (${attractions.length} found)`;
+
         const container = document.getElementById("attractionsContainer");
         container.replaceChildren();
+
         if (attractions.length < 4) {
-            container.textContent =
+            const message = document.createElement("p");
+            message.textContent =
                 "Try a more specific destination, such as Panaji or Calangute for Goa.";
+            container.appendChild(message);
         }
+
         attractions.forEach(attraction => {
             const card = document.createElement("div");
             card.className = "attraction-card";
@@ -66,7 +79,13 @@ searchForm.addEventListener("submit", async function(event) {
             checkbox.className = "attraction-checkbox";
             checkbox.value = attraction.name;
             checkbox.dataset.category = attraction.category;
-            console.log(attraction.name, "Category:", attraction.category);
+
+            console.log(
+                attraction.name,
+                "Category:",
+                attraction.category
+            );
+
             const details = document.createElement("div");
 
             const name = document.createElement("h3");
@@ -81,69 +100,20 @@ searchForm.addEventListener("submit", async function(event) {
             container.appendChild(card);
         });
 
-
     } catch (error) {
         destinationResult.textContent =
             "Couldn't load destination details. Please try again.";
         console.error(error);
     }
 });
+
+// Popular destination buttons
 document.querySelectorAll(".destination-card").forEach(card => {
     card.addEventListener("click", () => {
         destinationInput.value = card.dataset.destination;
         searchForm.requestSubmit();
     });
 });
-
-/*planTripBtn.addEventListener("click", () => {
-
-    const selectedAttractions = Array.from(
-        document.querySelectorAll(".attraction-checkbox:checked")
-    ).map(checkbox => checkbox.value);
-
-    const result = document.getElementById("selectionResult");
-
-    if (selectedAttractions.length === 0) {
-        result.textContent = "Please select at least one attraction.";
-        return;
-    }
-
-    result.textContent =
-        "Selected attractions: " + selectedAttractions.join(", ");
-
-    console.log("Selected attractions:", selectedAttractions);
-    const travelers = Number(document.getElementById("travelers").value);
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
-    const start = new Date(startDate + "T00:00:00");
-    const end = new Date(endDate + "T00:00:00");
-    if (start<end){
-        result.textContent = "Start date cannot be before end date";
-        return;
-    }
-    const days = Math.round(
-        (end - start) / (1000 * 60 * 60 * 24)
-    ) + 1;
-    const hotelCategory =
-        document.getElementById("hotelCategory").value;
-    const foodPreference =
-        document.getElementById("foodPreference").value;
-    const totalBudget =
-        Number(document.getElementById("totalBudget").value);
-    const tripData = {
-        destination: destinationInput.value.trim(),
-        days,
-        travelers,
-        startDate,
-        endDate,
-        selectedAttractions,
-        hotelCategory,
-        foodPreference,
-        totalBudget
-    };
-
-    console.log("Trip data:", tripData);
-});*/
 
 const planTripBtn = document.getElementById("planTripBtn");
 
@@ -181,8 +151,10 @@ planTripBtn.addEventListener("click", async () => {
     }
 
     const days = Math.round(
-        (new Date(endDate + "T00:00:00") -
-         new Date(startDate + "T00:00:00")) / 86400000
+        (
+            new Date(endDate + "T00:00:00") -
+            new Date(startDate + "T00:00:00")
+        ) / 86400000
     ) + 1;
 
     const tripData = {
@@ -191,15 +163,16 @@ planTripBtn.addEventListener("click", async () => {
         startDate: startDate,
         endDate: endDate,
         budget: budget,
-        description: `${days}-day trip. Accommodation: ${hotelCategory}.` 
-    }
+        description: `${days}-day trip. Accommodation: ${hotelCategory}.`
+    };
+
     planTripBtn.disabled = true;
     result.textContent = "Generating your itinerary...";
     itinerarySection.hidden = true;
     itineraryResult.replaceChildren();
 
     try {
-        // Step 1: Save trip
+        // Step 1: Save the trip
         const tripResponse = await fetch("/api/trips", {
             method: "POST",
             headers: {
@@ -209,12 +182,14 @@ planTripBtn.addEventListener("click", async () => {
         });
 
         if (!tripResponse.ok) {
-            throw new Error("Could not save trip: " + tripResponse.status);
+            throw new Error(
+                "Could not save trip: " + tripResponse.status
+            );
         }
 
         const savedTrip = await tripResponse.json();
 
-        // Step 2: Generate itinerary
+        // Step 2: Generate the itinerary
         const itineraryResponse = await fetch(
             `/api/trips/${savedTrip.id}/itinerary/generate`,
             {
@@ -234,7 +209,39 @@ planTripBtn.addEventListener("click", async () => {
 
         const itinerary = await itineraryResponse.json();
 
-        // Step 3: Display itinerary
+        // Step 3: Calculate the budget
+        const budgetResponse = await fetch(
+            `/api/trips/${savedTrip.id}/budget/calculate`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(selectedAttractions)
+            }
+        );
+
+        if (!budgetResponse.ok) {
+            throw new Error(
+                "Could not calculate budget: " + budgetResponse.status
+            );
+        }
+
+        const budgetBreakdown = await budgetResponse.json();
+
+        // Display the overall budget breakdown
+        document.getElementById("totalBudgetDisplay").textContent =
+            Number(budgetBreakdown.totalBudget).toLocaleString("en-IN");
+
+        document.getElementById("attractionCostDisplay").textContent =
+            Number(budgetBreakdown.attractionCost).toLocaleString("en-IN");
+
+        document.getElementById("hotelBudgetDisplay").textContent =
+            Number(budgetBreakdown.hotelBudget).toLocaleString("en-IN");
+
+        console.log("Budget breakdown:", budgetBreakdown);
+
+        // Step 4: Display the itinerary and cost of each visit
         result.textContent = "Your itinerary is ready!";
         itinerarySection.hidden = false;
 
@@ -243,12 +250,40 @@ planTripBtn.addEventListener("click", async () => {
             return;
         }
 
+        // Estimated cost per attraction category
+        const attractionCosts = {
+            nature: 200,
+            beach: 200,
+            religious: 100,
+            temple: 100,
+            mountain: 250,
+            viewpoint: 250,
+            museum: 200,
+            historical: 200,
+            wildlife: 350,
+            adventure: 350,
+            park: 100
+        };
+
+        // Find an attraction's category using its name
+        function getAttractionCost(attractionName) {
+            const selectedAttraction = selectedAttractions.find(
+                attraction => attraction.name === attractionName
+            );
+
+            const attractionCategory =
+                selectedAttraction?.category?.toLowerCase() || "";
+
+            return attractionCosts[attractionCategory] ?? 150;
+        }
+
         const grouped = {};
 
         itinerary.items.forEach(item => {
             if (!grouped[item.date]) {
                 grouped[item.date] = [];
             }
+
             grouped[item.date].push(item);
         });
 
@@ -267,6 +302,10 @@ planTripBtn.addEventListener("click", async () => {
                 const name = document.createElement("h4");
                 name.textContent = item.attractionName;
 
+                const cost = document.createElement("p");
+                cost.textContent =
+                    `Estimated attraction cost: ₹${getAttractionCost(item.attractionName).toLocaleString("en-IN")}`;
+
                 const time = document.createElement("p");
                 time.textContent =
                     `${item.startTime || ""} - ${item.endTime || ""}`;
@@ -274,7 +313,7 @@ planTripBtn.addEventListener("click", async () => {
                 const description = document.createElement("p");
                 description.textContent = item.description || "";
 
-                card.append(name, time, description);
+                card.append(name, cost, time, description);
                 daySection.appendChild(card);
             });
 
@@ -284,25 +323,16 @@ planTripBtn.addEventListener("click", async () => {
     } catch (error) {
         console.error(error);
         result.textContent = "Error: " + error.message;
+
     } finally {
         planTripBtn.disabled = false;
     }
 });
-/*document.getElementById("findHotelsBtn").addEventListener("click", () => {
-    const destination = destinationInput.value.trim();
 
-    if (!destination) {
-        alert("Please select a destination first.");
-        return;
-    }
-
-    const url = "https://www.booking.com/searchresults.html?ss="
-        + encodeURIComponent(destination);
-
-    window.open(url, "_blank", "noopener,noreferrer");
-});*/
+// Open hotel search on Booking.com
 document.getElementById("findHotelsBtn").addEventListener("click", () => {
     const destination = destinationInput.value.trim();
+    console.log("Destination sent to Booking.com:", destination);
     const checkin = document.getElementById("startDate").value;
     const checkout = document.getElementById("endDate").value;
 
@@ -310,6 +340,11 @@ document.getElementById("findHotelsBtn").addEventListener("click", () => {
         alert("Please enter a destination and valid dates.");
         return;
     }
+
+    const hotelBudget = Number(
+        document.getElementById("hotelBudgetDisplay").textContent
+            .replace(/,/g, "")
+    );
 
     const params = new URLSearchParams({
         ss: destination,
@@ -319,6 +354,16 @@ document.getElementById("findHotelsBtn").addEventListener("click", () => {
         no_rooms: 1,
         group_children: 0
     });
+
+    // Booking.com search results do not necessarily enforce this budget.
+    if (Number.isFinite(hotelBudget) && hotelBudget > 0) {
+        alert(
+            `Your suggested total hotel budget is ₹${hotelBudget.toLocaleString("en-IN")}. ` +
+            "On Booking.com, check the total price for your travel dates to stay within this budget."
+        );
+    } else {
+        alert("Plan your trip first to calculate your remaining hotel budget.");
+    }
 
     window.open(
         "https://www.booking.com/searchresults.html?" + params.toString(),
