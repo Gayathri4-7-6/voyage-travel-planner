@@ -156,7 +156,7 @@ public class AttractionService {
                             }
 
                             String category = getCategory(lowerName);
-
+                            
                             attractions.add(new AttractionResponse(
                                 name,
                                 "Nearby place listed on Wikipedia",
