@@ -93,9 +93,8 @@ document.querySelectorAll(".destination-card").forEach(card => {
         searchForm.requestSubmit();
     });
 });
-const planTripBtn = document.getElementById("planTripBtn");
 
-planTripBtn.addEventListener("click", () => {
+/*planTripBtn.addEventListener("click", () => {
 
     const selectedAttractions = Array.from(
         document.querySelectorAll(".attraction-checkbox:checked")
@@ -117,6 +116,10 @@ planTripBtn.addEventListener("click", () => {
     const endDate = document.getElementById("endDate").value;
     const start = new Date(startDate + "T00:00:00");
     const end = new Date(endDate + "T00:00:00");
+    if (start<end){
+        result.textContent = "Start date cannot be before end date";
+        return;
+    }
     const days = Math.round(
         (end - start) / (1000 * 60 * 60 * 24)
     ) + 1;
@@ -139,4 +142,146 @@ planTripBtn.addEventListener("click", () => {
     };
 
     console.log("Trip data:", tripData);
+});*/
+
+const planTripBtn = document.getElementById("planTripBtn");
+
+planTripBtn.addEventListener("click", async () => {
+    const result = document.getElementById("selectionResult");
+    const itinerarySection = document.getElementById("itinerarySection");
+    const itineraryResult = document.getElementById("itineraryResult");
+
+    const selectedAttractions = Array.from(
+        document.querySelectorAll(".attraction-checkbox:checked")
+    ).map(checkbox => checkbox.value);
+
+    const destination = destinationInput.value.trim();
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const budget = Number(document.getElementById("totalBudget").value);
+    const travelers = Number(document.getElementById("travelers").value);
+    const hotelCategory = document.getElementById("hotelCategory").value;
+
+    if (!destination || selectedAttractions.length === 0) {
+        result.textContent = "Please select a destination and attractions.";
+        return;
+    }
+
+    if (!startDate || !endDate || endDate < startDate) {
+        result.textContent = "Please enter valid travel dates.";
+        return;
+    }
+
+    if (!Number.isFinite(budget) || budget <= 0 || travelers < 1) {
+        result.textContent = "Please enter a valid budget and traveler count.";
+        return;
+    }
+
+    const days = Math.round(
+        (new Date(endDate + "T00:00:00") -
+         new Date(startDate + "T00:00:00")) / 86400000
+    ) + 1;
+
+    const tripData = {
+        title: `Trip to ${destination}`,
+        destination: destination,
+        startDate: startDate,
+        endDate: endDate,
+        budget: budget,
+        description: `${days}-day trip for ${travelers} travelers. Accommodation: ${hotelCategory}.`
+    }
+    planTripBtn.disabled = true;
+    result.textContent = "Generating your itinerary...";
+    itinerarySection.hidden = true;
+    itineraryResult.replaceChildren();
+
+    try {
+        // Step 1: Save trip
+        const tripResponse = await fetch("/api/trips", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(tripData)
+        });
+
+        if (!tripResponse.ok) {
+            throw new Error("Could not save trip: " + tripResponse.status);
+        }
+
+        const savedTrip = await tripResponse.json();
+
+        // Step 2: Generate itinerary
+        const itineraryResponse = await fetch(
+            `/api/trips/${savedTrip.id}/itinerary/generate`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(selectedAttractions)
+            }
+        );
+
+        if (!itineraryResponse.ok) {
+            throw new Error(
+                "Could not generate itinerary: " + itineraryResponse.status
+            );
+        }
+
+        const itinerary = await itineraryResponse.json();
+
+        // Step 3: Display itinerary
+        result.textContent = "Your itinerary is ready!";
+        itinerarySection.hidden = false;
+
+        if (!itinerary.items || itinerary.items.length === 0) {
+            itineraryResult.textContent = "No itinerary items generated.";
+            return;
+        }
+
+        const grouped = {};
+
+        itinerary.items.forEach(item => {
+            if (!grouped[item.date]) {
+                grouped[item.date] = [];
+            }
+            grouped[item.date].push(item);
+        });
+
+        Object.keys(grouped).sort().forEach((date, index) => {
+            const daySection = document.createElement("div");
+            daySection.className = "itinerary-day";
+
+            const heading = document.createElement("h3");
+            heading.textContent = `Day ${index + 1} - ${date}`;
+            daySection.appendChild(heading);
+
+            grouped[date].forEach(item => {
+                const card = document.createElement("div");
+                card.className = "itinerary-card";
+
+                const name = document.createElement("h4");
+                name.textContent = item.attractionName;
+
+                const time = document.createElement("p");
+                time.textContent =
+                    `${item.startTime || ""} - ${item.endTime || ""}`;
+
+                const description = document.createElement("p");
+                description.textContent = item.description || "";
+
+                card.append(name, time, description);
+                daySection.appendChild(card);
+            });
+
+            itineraryResult.appendChild(daySection);
+        });
+
+    } catch (error) {
+        console.error(error);
+        result.textContent = "Error: " + error.message;
+    } finally {
+        planTripBtn.disabled = false;
+    }
 });

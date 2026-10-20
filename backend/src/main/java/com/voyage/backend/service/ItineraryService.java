@@ -3,19 +3,19 @@ package com.voyage.backend.service;
 
 
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.voyage.backend.exception.TripNotFoundException;
 import com.voyage.backend.model.Itinerary;
 import com.voyage.backend.model.ItineraryItem;
 import com.voyage.backend.model.Trip;
 import com.voyage.backend.repository.ItineraryRepository;
 import com.voyage.backend.repository.TripRepository;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ItineraryService {
@@ -63,23 +63,40 @@ public class ItineraryService {
         long totalDays = ChronoUnit.DAYS.between(
                 startDate, endDate) + 1;
 
+        
+        String[][] timeSlots = {
+        {"09:00", "11:00"},
+        {"11:30", "13:00"},
+        {"14:00", "16:00"},
+        {"16:30", "18:00"}
+        };
+
+        int[] counts = new int[(int) totalDays];
+
         for (int i = 0; i < attractions.size(); i++) {
-            long dayOffset = i % totalDays;
-            LocalDate date = startDate.plusDays(dayOffset);
+        int dayIndex = (int) (i % totalDays);
+        LocalDate date = startDate.plusDays(dayIndex);
 
-            ItineraryItem item = new ItineraryItem(
-                    date,
-                    attractions.get(i),
-                    "Visit " + attractions.get(i),
-                    "09:00",
-                    "11:00"
-            );
+        int slotIndex = counts[dayIndex];
 
-            items.add(item);
+        if (slotIndex >= timeSlots.length) {
+                throw new IllegalArgumentException(
+                "Too many attractions for the selected trip duration."
+                );
         }
 
-        itinerary.setItems(items);
+        ItineraryItem item = new ItineraryItem(
+                date,
+                attractions.get(i),
+                "Visit " + attractions.get(i),
+                timeSlots[slotIndex][0],
+                timeSlots[slotIndex][1]
+        );
 
+        items.add(item);
+        counts[dayIndex]++;
+        }
+        itinerary.setItems(items);
         return itineraryRepository.save(itinerary);
     }
     public Itinerary getItinerary(Long tripId) {
