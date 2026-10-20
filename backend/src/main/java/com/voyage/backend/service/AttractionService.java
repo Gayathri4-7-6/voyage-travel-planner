@@ -21,6 +21,35 @@ import tools.jackson.databind.ObjectMapper;
 public class AttractionService {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    private String getCategory(String name) {
+        if (name.matches(".*(museum|gallery|memorial).*"))
+            return "Museum";
+
+        if (name.matches(".*(temple|church|mosque|monastery|stupa|gompa).*"))
+            return "Religious";
+
+        if (name.matches(".*(fort|palace|monument).*"))
+            return "Historical";
+
+        if (name.matches(".*(national park|sanctuary|reserve|zoo).*"))
+            return "Wildlife";
+
+        if (name.matches(".*(waterfall|falls|lake|dam|beach).*"))
+            return "Nature";
+
+        if (name.matches(".*(viewpoint|peak|pass|valley|glacier).*"))
+            return "Viewpoint";
+
+        if (name.matches(".*(garden|park).*"))
+            return "Park";
+
+        if (name.matches(".*(cave|trek).*"))
+            return "Adventure";
+        
+        return "None";
+    }
+
     public List<AttractionResponse> getAttractions(String destination) {
         List<AttractionResponse> attractions = new ArrayList<>();
         String encoded = URLEncoder.encode(
@@ -126,12 +155,14 @@ public class AttractionService {
                                 continue;
                             }
 
+                            String category = getCategory(lowerName);
+
                             attractions.add(new AttractionResponse(
                                 name,
                                 "Nearby place listed on Wikipedia",
                                 page.path("lat").asDouble(),
                                 page.path("lon").asDouble(),
-                                "Sightseeing",
+                                category,
                                 null
                             ));
 
