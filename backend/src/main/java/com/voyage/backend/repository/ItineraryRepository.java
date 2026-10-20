@@ -1,13 +1,15 @@
-
 package com.voyage.backend.repository;
 
-import com.voyage.backend.model.Itinerary;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.voyage.backend.model.Itinerary;
 
 public interface ItineraryRepository
         extends JpaRepository<Itinerary, Long> {
 
     Optional<Itinerary> findByTrip_Id(Long tripId);
+
+    void deleteByTrip_Id(Long tripId);
 }

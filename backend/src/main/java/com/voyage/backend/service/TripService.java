@@ -1,20 +1,24 @@
 
 package com.voyage.backend.service;
 
-import com.voyage.backend.model.Trip;
-import com.voyage.backend.repository.TripRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.voyage.backend.exception.TripNotFoundException;
+import com.voyage.backend.model.Trip;
+import com.voyage.backend.repository.ItineraryRepository;
+import com.voyage.backend.repository.TripRepository;
 @Service
 public class TripService {
 
     private final TripRepository tripRepository;
-
-    public TripService(TripRepository tripRepository) {
+    private final ItineraryRepository itineraryRepository;
+    public TripService(TripRepository tripRepository,ItineraryRepository itineraryRepository) {
         this.tripRepository = tripRepository;
+        this.itineraryRepository = itineraryRepository;
     }
 
     public Trip createTrip(Trip trip) {
@@ -32,7 +36,7 @@ public class TripService {
     public Trip updateTrip(Long id, Trip updatedTrip) {
         Trip existingTrip = tripRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Trip not found with ID: " + id));
+                        new TripNotFoundException("Trip not found with ID: " + id));
 
         existingTrip.setTitle(updatedTrip.getTitle());
         existingTrip.setDestination(updatedTrip.getDestination());
@@ -44,11 +48,14 @@ public class TripService {
         return tripRepository.save(existingTrip);
     }
 
+    @Transactional
     public void deleteTrip(Long id) {
         if (!tripRepository.existsById(id)) {
-            throw new RuntimeException("Trip not found with ID: " + id);
+            throw new TripNotFoundException(
+                    "Trip not found with ID: " + id);
         }
 
+        itineraryRepository.deleteByTrip_Id(id);
         tripRepository.deleteById(id);
     }
 }
