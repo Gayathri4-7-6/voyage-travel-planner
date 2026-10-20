@@ -25,14 +25,34 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(exception.getMessage());
     }
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationErrors(
-            MethodArgumentNotValidException exception) {
+    
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<String> handleValidationErrors(
+                MethodArgumentNotValidException exception) {
+
+        String fieldErrors = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getDefaultMessage())
+                .distinct()
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        String objectErrors = exception.getBindingResult()
+                .getGlobalErrors()
+                .stream()
+                .map(error -> error.getDefaultMessage())
+                .distinct()
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        String errors = java.util.stream.Stream.of(fieldErrors, objectErrors)
+                .filter(message -> !message.isBlank())
+                .collect(java.util.stream.Collectors.joining(", "));
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("CUSTOM VALIDATION HANDLER REACHED");
-    }
+                .body(errors.isBlank() ? "Invalid request." : errors);
+        }
+
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<String> handleMethodValidation(
             HandlerMethodValidationException exception) {
