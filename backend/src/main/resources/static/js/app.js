@@ -32,7 +32,7 @@ searchForm.addEventListener("submit", async function(event) {
         heading.textContent = data.name;
 
         const description = document.createElement("p");
-        description.textContent = data.description || "No description available.";
+        description.textContent = "Great choice! "+data.description || "No description available.";
 
         destinationResult.append(heading, description);
         const attractionResponse = await fetch(
@@ -65,7 +65,8 @@ searchForm.addEventListener("submit", async function(event) {
             checkbox.type = "checkbox";
             checkbox.className = "attraction-checkbox";
             checkbox.value = attraction.name;
-
+            checkbox.dataset.category = attraction.category;
+            console.log(attraction.name, "Category:", attraction.category);
             const details = document.createElement("div");
 
             const name = document.createElement("h3");
@@ -153,13 +154,15 @@ planTripBtn.addEventListener("click", async () => {
 
     const selectedAttractions = Array.from(
         document.querySelectorAll(".attraction-checkbox:checked")
-    ).map(checkbox => checkbox.value);
+    ).map(checkbox => ({
+        name: checkbox.value,
+        category: checkbox.dataset.category
+    }));
 
     const destination = destinationInput.value.trim();
     const startDate = document.getElementById("startDate").value;
     const endDate = document.getElementById("endDate").value;
     const budget = Number(document.getElementById("totalBudget").value);
-    const travelers = Number(document.getElementById("travelers").value);
     const hotelCategory = document.getElementById("hotelCategory").value;
 
     if (!destination || selectedAttractions.length === 0) {
@@ -172,8 +175,8 @@ planTripBtn.addEventListener("click", async () => {
         return;
     }
 
-    if (!Number.isFinite(budget) || budget <= 0 || travelers < 1) {
-        result.textContent = "Please enter a valid budget and traveler count.";
+    if (!Number.isFinite(budget) || budget <= 0) {
+        result.textContent = "Please enter a valid budget.";
         return;
     }
 
@@ -188,7 +191,7 @@ planTripBtn.addEventListener("click", async () => {
         startDate: startDate,
         endDate: endDate,
         budget: budget,
-        description: `${days}-day trip for ${travelers} travelers. Accommodation: ${hotelCategory}.`
+        description: `${days}-day trip. Accommodation: ${hotelCategory}.` 
     }
     planTripBtn.disabled = true;
     result.textContent = "Generating your itinerary...";
@@ -284,4 +287,42 @@ planTripBtn.addEventListener("click", async () => {
     } finally {
         planTripBtn.disabled = false;
     }
+});
+/*document.getElementById("findHotelsBtn").addEventListener("click", () => {
+    const destination = destinationInput.value.trim();
+
+    if (!destination) {
+        alert("Please select a destination first.");
+        return;
+    }
+
+    const url = "https://www.booking.com/searchresults.html?ss="
+        + encodeURIComponent(destination);
+
+    window.open(url, "_blank", "noopener,noreferrer");
+});*/
+document.getElementById("findHotelsBtn").addEventListener("click", () => {
+    const destination = destinationInput.value.trim();
+    const checkin = document.getElementById("startDate").value;
+    const checkout = document.getElementById("endDate").value;
+
+    if (!destination || !checkin || !checkout || checkout <= checkin) {
+        alert("Please enter a destination and valid dates.");
+        return;
+    }
+
+    const params = new URLSearchParams({
+        ss: destination,
+        checkin: checkin,
+        checkout: checkout,
+        group_adults: 1,
+        no_rooms: 1,
+        group_children: 0
+    });
+
+    window.open(
+        "https://www.booking.com/searchresults.html?" + params.toString(),
+        "_blank",
+        "noopener,noreferrer"
+    );
 });
