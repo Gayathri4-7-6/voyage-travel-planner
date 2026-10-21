@@ -34,11 +34,13 @@ public class BudgetService {
                 throw new IllegalArgumentException(
                         "Invalid attraction.");
             }
-
+            
             attractionTotal = attractionTotal.add(
                     getEstimatedCost(attraction.category()));
         }
-
+        // Only sightseeing estimates are deducted here; food, transport and
+        // actual hotel prices are outside current scope
+        // linked to Booking.com where users can view real-time hotel prices
         BigDecimal totalBudget = trip.getBudget();
         BigDecimal hotelBudget =
                 totalBudget.subtract(attractionTotal);
@@ -53,7 +55,8 @@ public class BudgetService {
                 hotelBudget
         );
     }
-
+        //Provides a simple estimated entry cost per attraction category.
+         
     private BigDecimal getEstimatedCost(String category) {
 
         if (category == null) {

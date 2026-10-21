@@ -28,7 +28,12 @@ public class ItineraryService {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
     }
-
+    /**
+     * Builds a date-wise schedule from the user's selected attractions.
+     * Visit durations depend on attraction category, and the schedule
+     * considers a lunch break and travel buffers. The resulting itinerary
+     * is saved against the trip so it can be retrieved later.
+     */
     public Itinerary generateItinerary(
             Long tripId,
             List<SelectedAttraction> attractions) {
@@ -74,7 +79,8 @@ public class ItineraryService {
                 throw new IllegalArgumentException(
                         "Invalid attraction.");
             }
-
+            // Spread visits over the trip rather than filling the first day first.
+            // Later moves visits forward if a day becomes too packed
             // Distribute attractions across trip days
             int dayIndex = (int) ((long) i * totalDays / attractions.size());
             LocalDate targetDate = startDate.plusDays(dayIndex);
@@ -92,7 +98,8 @@ public class ItineraryService {
                 if (minutes >= 13 * 60 && minutes < 14 * 60) {
                     minutes = 14 * 60;
                 }
-
+                // Ensure nothing scheduled during lunch,f a visit would cross it,
+                // schedule that visit after lunch instead.
                 // Do not schedule visits across lunch
                 if (minutes < 13 * 60 &&
                         minutes + duration > 13 * 60) {

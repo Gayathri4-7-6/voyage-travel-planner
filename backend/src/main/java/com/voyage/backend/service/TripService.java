@@ -47,7 +47,11 @@ public class TripService {
 
         return tripRepository.save(existingTrip);
     }
-
+    /**
+     * Deletes the itinerary before its parent trip to avoid violating
+     * the trip_id foreign-key constraint. Both operations run in one
+     * transaction so a failure does not leave a partial deletion.
+     */
     @Transactional
     public void deleteTrip(Long id) {
         if (!tripRepository.existsById(id)) {

@@ -154,7 +154,7 @@ public class AttractionService {
                             if (!isAttraction) {
                                 continue;
                             }
-
+                            //Classifies Wikipedia place titles using recognizable keywords
                             String category = getCategory(lowerName);
                             
                             attractions.add(new AttractionResponse(
