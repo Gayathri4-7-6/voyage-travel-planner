@@ -75,15 +75,13 @@ backend/
    ```
 5. Open **http://localhost:8080/**. The API is available under `/api/`.
 
-Do not commit database passwords, secrets or local environment files to GitHub.
-
 ## A quick walkthrough
 
 1. Search for a destination or use a popular-destination shortcut.
 2. Choose attractions and enter travel dates and a total budget.
 3. Select **Plan My Trip** to create a trip, generate the itinerary and calculate the sightseeing allowance.
 4. Review the day-wise visit schedule and budget breakdown.
-5. Use **Find Hotels** to open Booking.com with the search details and estimated nightly limit. In Voyage's convention, the final trip date is the last sightseeing day, and hotel checkout is the following day.
+5. Use **Find Hotels** to open Booking.com with exact search details such as destination, dates and calculated nightly limit. In Voyage's convention, the final trip date is the last sightseeing day, and hotel checkout is the following day.
 
 The API also allows trips to be updated and deleted; see [API Documentation](docs/API.md).
 
@@ -111,4 +109,4 @@ Invalid trip fields are checked with Jakarta validation annotations. Missing tri
 
 ## Scope and limitations
 
-Voyage is a travel-planning prototype, not a live ticketing or hotel booking service. Attraction results depend on external location/Wikipedia data and keyword-based classification. Visit times, entry fees and the hotel budget are estimates; the remaining hotel budget currently subtracts sightseeing estimates, not every possible expense. Users are not authenticated, so the saved trips are not separated into private accounts.
+Voyage is a travel-planning prototype, not a live ticketing or hotel booking service. Attraction results depend on external location/Wikipedia data and keyword-based classification. Visit times, entry fees and the hotel budget are estimates. The estimated accommodation budget is calculated by subtracting sightseeing expenses from the total trip budget. Food, transportation, and other personal expenses may not be included. Future improvements could provide more comprehensive expense estimates and warnings when the available budget is insufficient.
