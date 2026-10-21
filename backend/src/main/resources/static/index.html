@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,9 +28,11 @@
         </form>
 
         <div id="destinationResult"></div>
+
         <section id="attractionsSection">
             <h2>Places to Explore</h2>
             <div id="attractionsContainer"></div>
+
             <div class="trip-preferences">
                 <h2>Customize Your Trip</h2>
 
@@ -38,7 +41,7 @@
 
                 <label for="endDate">End date</label>
                 <input type="date" id="endDate">
-                
+
                 <label for="totalBudget">Total trip budget (₹)</label>
                 <input
                     type="number"
@@ -47,59 +50,107 @@
                     placeholder="e.g. 15000"
                     required
                 >
+
+                <label for="hotelCategory">Preferred Hotel Category</label>
+                <select id="hotelCategory">
+                    <option value="Budget">Budget</option>
+                    <option value="Mid-range">Mid-range</option>
+                    <option value="Luxury">Luxury</option>
+                </select>
             </div>
+
             <button type="button" id="findHotelsBtn">
                 🏨 Find Hotels
             </button>
+
             <button type="button" id="planTripBtn">
                 Plan My Trip
             </button>
 
             <p id="selectionResult"></p>
-            
-<section id="itinerarySection" hidden>
-    <h2>Your Travel Itinerary</h2>
-    <div id="itineraryResult"></div>
 
-    <section id="budgetSection">
-        <h2>💰 Your Budget Breakdown</h2>
-        <p>Total Budget: ₹<span id="totalBudgetDisplay">0</span></p>
-        <p>Estimated Attraction Costs: ₹<span id="attractionCostDisplay">0</span></p>
-        <p>Remaining Hotel Budget: ₹<span id="hotelBudgetDisplay">0</span></p>
-        <p><small>Note: Attraction costs are rough estimates. Food expenses are not included.</small></p>
-        </section>
-    </section>
+            <section id="itinerarySection" hidden>
+                <h2>Your Travel Itinerary</h2>
+                <div id="itineraryResult"></div>
 
+                <section id="budgetSection">
+                    <h2>💰 Your Budget Breakdown</h2>
+
+                    <p>
+                        Total Budget: ₹<span id="totalBudgetDisplay">0</span>
+                    </p>
+
+                    <p>
+                        Estimated Attraction Costs:
+                        ₹<span id="attractionCostDisplay">0</span>
+                    </p>
+
+                    <p>
+                        Remaining Hotel Budget:
+                        ₹<span id="hotelBudgetDisplay">0</span>
+                    </p>
+
+                    <p>
+                        <small>
+                            Note: Attraction costs are rough estimates.
+                            Food expenses are not included.
+                        </small>
+                    </p>
+                </section>
+            </section>
         </section>
-        
+
         <h2>Popular Destinations</h2>
 
         <div class="popular-destinations">
-        <button type="button" class="destination-card" data-destination="Munnar">
-            Munnar
-        </button>
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Munnar"
+            >
+                Munnar
+            </button>
 
-        <button type="button" class="destination-card" data-destination="Goa">
-            Goa
-        </button>
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Goa"
+            >
+                Goa
+            </button>
 
-        <button type="button" class="destination-card" data-destination="Manali">
-            Manali
-        </button>
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Manali"
+            >
+                Manali
+            </button>
 
-        <button type="button" class="destination-card" data-destination="Jaipur">
-            Jaipur
-        </button>
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Jaipur"
+            >
+                Jaipur
+            </button>
 
-        <button type="button" class="destination-card" data-destination="Leh">
-            Leh
-        </button>
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Leh"
+            >
+                Leh
+            </button>
 
-        <button type="button" class="destination-card" data-destination="Shillong">
-            Shillong
-        </button>
-    </div>
-
+            <button
+                type="button"
+                class="destination-card"
+                data-destination="Shillong"
+            >
+                Shillong
+            </button>
+        </div>
     </section>
 </main>
 

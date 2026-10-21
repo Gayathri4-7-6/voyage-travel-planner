@@ -3,6 +3,7 @@ const searchForm = document.getElementById("searchForm");
 const destinationInput = document.getElementById("destinationInput");
 const destinationResult = document.getElementById("destinationResult");
 let maxNightlyBudget = null;
+
 // Search for destinations and attractions
 searchForm.addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -118,7 +119,8 @@ document.querySelectorAll(".destination-card").forEach(card => {
 const planTripBtn = document.getElementById("planTripBtn");
 
 planTripBtn.addEventListener("click", async () => {
-    maxNightlyBudget=null;
+    maxNightlyBudget = null;
+
     const result = document.getElementById("selectionResult");
     const itinerarySection = document.getElementById("itinerarySection");
     const itineraryResult = document.getElementById("itineraryResult");
@@ -134,7 +136,7 @@ planTripBtn.addEventListener("click", async () => {
     const startDate = document.getElementById("startDate").value;
     const endDate = document.getElementById("endDate").value;
     const budget = Number(document.getElementById("totalBudget").value);
-    //const hotelCategory = document.getElementById("hotelCategory").value;
+    const hotelCategory = document.getElementById("hotelCategory").value;
 
     if (!destination || selectedAttractions.length === 0) {
         result.textContent = "Please select a destination and attractions.";
@@ -164,7 +166,7 @@ planTripBtn.addEventListener("click", async () => {
         startDate: startDate,
         endDate: endDate,
         budget: budget,
-        description: `${days}-day trip.`
+        description: `${days}-day trip. Accommodation: ${hotelCategory}.`
     };
 
     planTripBtn.disabled = true;
@@ -187,7 +189,9 @@ planTripBtn.addEventListener("click", async () => {
                 "Could not save trip: " + tripResponse.status
             );
         }
+
         const savedTrip = await tripResponse.json();
+
         // Step 2: Generate the itinerary
         const itineraryResponse = await fetch(
             `/api/trips/${savedTrip.id}/itinerary/generate`,
@@ -227,12 +231,15 @@ planTripBtn.addEventListener("click", async () => {
         }
 
         const budgetBreakdown = await budgetResponse.json();
+
         const nights = days;
+
         maxNightlyBudget = Math.floor(
             Number(budgetBreakdown.hotelBudget) / nights
         );
 
         console.log("Maximum nightly rate:", maxNightlyBudget);
+
         // Display the overall budget breakdown
         document.getElementById("totalBudgetDisplay").textContent =
             Number(budgetBreakdown.totalBudget).toLocaleString("en-IN");
@@ -333,33 +340,12 @@ planTripBtn.addEventListener("click", async () => {
     }
 });
 
-
+// Find hotels on Booking.com
 document.getElementById("findHotelsBtn").addEventListener("click", () => {
     const destination = destinationInput.value.trim();
     const checkin = document.getElementById("startDate").value;
     const checkout = document.getElementById("endDate").value;
-    const totalBudget = Number(document.getElementById("totalBudget").value);
-
-    const attractionsCount = document.querySelectorAll(
-        ".attraction-checkbox:checked"
-    ).length;
-
-    if (!destination || !checkin || !checkout || checkout <= checkin ||
-        !Number.isFinite(totalBudget) || totalBudget <= 0) {
-        alert("Please enter your destination, dates and budget.");
-        return;
-    }
-
-    const days = Math.round(
-        (new Date(checkout + "T00:00:00") -
-         new Date(checkin + "T00:00:00")) / 86400000
-    ) + 1;
-
-    
-document.getElementById("findHotelsBtn").addEventListener("click", () => {
-    const destination = destinationInput.value.trim();
-    const checkin = document.getElementById("startDate").value;
-    const checkout = document.getElementById("endDate").value;
+    const hotelCategory = document.getElementById("hotelCategory").value;
 
     if (!destination || !checkin || !checkout || checkout < checkin) {
         alert("Please enter a destination and valid dates.");
@@ -395,33 +381,14 @@ document.getElementById("findHotelsBtn").addEventListener("click", () => {
         group_children: "0"
     });
 
-    params.set(
-        "nflt",
-        `price=INR-min-${maxNightlyBudget}-1`
-    );
-
-    window.open(
-        "https://www.booking.com/searchresults.en-gb.html?" + params.toString(),
-        "_blank",
-        "noopener,noreferrer"
-    );
-});
-
-
     // Booking.com price filter
-    if (maxNightlyBudget === null) {
-        alert("Please click Plan My Trip first to calculate your hotel budget.");
-        return;
-    }
-
-    if (maxNightlyBudget <= 0) {
-        alert("No remaining budget for hotels.");
-        return;
-    }
     params.set(
         "nflt",
         `price=INR-min-${maxNightlyBudget}-1`
     );
+
+    console.log("Hotel category:", hotelCategory);
+    console.log("Maximum nightly rate:", maxNightlyBudget);
 
     window.open(
         "https://www.booking.com/searchresults.en-gb.html?" + params.toString(),
@@ -429,4 +396,3 @@ document.getElementById("findHotelsBtn").addEventListener("click", () => {
         "noopener,noreferrer"
     );
 });
-
