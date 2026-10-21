@@ -134,7 +134,7 @@ planTripBtn.addEventListener("click", async () => {
     const startDate = document.getElementById("startDate").value;
     const endDate = document.getElementById("endDate").value;
     const budget = Number(document.getElementById("totalBudget").value);
-    const hotelCategory = document.getElementById("hotelCategory").value;
+    //const hotelCategory = document.getElementById("hotelCategory").value;
 
     if (!destination || selectedAttractions.length === 0) {
         result.textContent = "Please select a destination and attractions.";
@@ -164,7 +164,7 @@ planTripBtn.addEventListener("click", async () => {
         startDate: startDate,
         endDate: endDate,
         budget: budget,
-        description: `${days}-day trip. Accommodation: ${hotelCategory}.`
+        description: `${days}-day trip.`
     };
 
     planTripBtn.disabled = true;
