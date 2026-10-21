@@ -109,3 +109,44 @@ button {
     border: 1px solid #ccc;
     border-radius: 8px;
 }
+
+#itinerarySection {
+    margin-top: 35px;
+    text-align: left;
+}
+
+.itinerary-day {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.itinerary-day h3 {
+    color: #193b63;
+    margin-bottom: 16px;
+}
+
+.itinerary-card {
+    border-left: 4px solid #16856b;
+    background: #f4f8fb;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+}
+
+.itinerary-card h4 {
+    margin: 0 0 8px;
+    color: #193b63;
+}
+
+.itinerary-card p {
+    margin: 6px 0;
+    line-height: 1.5;
+}
+
+#planTripBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
