@@ -101,4 +101,4 @@ sequenceDiagram
 
 ## Limitations and possible improvements
 
-Visit lengths, category classifications and entry fees are estimates; the itinerary does not currently optimize travel distances or check live attraction opening times. The hotel search is an external hand-off, not a booking integration. A future version could add personalized accounts, more detailed transport/food costs and location-aware scheduling, but those are not required for the current prototype.
+Visit lengths, category classifications and entry fees are estimates; the itinerary does not currently optimize travel distances or check live attraction opening times. The hotel search redirects to an external page and is not a booking integration. A future version could add more detailed transport and food costs.
